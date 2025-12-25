@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_login/widget/input_field.dart';
 
 class ConverterPage extends StatefulWidget {
   const ConverterPage({super.key});
@@ -8,16 +9,13 @@ class ConverterPage extends StatefulWidget {
 }
 
 class _ConverterPageState extends State<ConverterPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
-  String name = "";
-  String? nameError;
-  String? emailError;
-  String? passError;
-
-  bool showPassword = false;
+  String name = " ";
 
   @override
   Widget build(BuildContext context) {
@@ -25,70 +23,85 @@ class _ConverterPageState extends State<ConverterPage> {
       appBar: AppBar(title: const Text("Converter Page")),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: "Name",
-                errorText: nameError,
-                border: const OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              InputField(
+                controller: nameController,
+                keyboardType: TextInputType.text,
+                hint: "Enter your name",
+                label: "Name",
+                icon: Icons.person,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Name is required";
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                errorText: emailError,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: passController,
-              obscureText: !showPassword,
-              decoration: InputDecoration(
-                labelText: "Password",
-                errorText: passError,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 25),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  nameError = null;
-                  emailError = null;
-                  passError = null;
 
-                  if (nameController.text.isEmpty) {
-                    nameError = "Name required";
-                  }
-                  if (emailController.text.isEmpty) {
-                    emailError = "Email required";
-                  }
-                  if (passController.text.isEmpty) {
-                    passError = "Password required";
-                  }
+              const SizedBox(height: 15),
 
-                  if (nameError == null &&
-                      emailError == null &&
-                      passError == null) {
-                    name = nameController.text;
+              InputField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                hint: "Enter your email",
+                label: "Email",
+                icon: Icons.email,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Email is required";
+                  }
+                  if (!value.contains("@")) {
+                    return "Enter a valid email";
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 15),
+
+              InputField(
+                controller: passController,
+                keyboardType: TextInputType.visiblePassword,
+                hint: "Enter your password",
+                label: "Password",
+                icon: Icons.lock,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Password is required";
+                  }
+                  if (value.length < 6) {
+                    return "Minimum 6 characters required";
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 25),
+
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    setState(() {
+                      name = nameController.text;
+                    });
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Form submitted successfully!"),
+                        content: Text("Form submitted successfully"),
                       ),
                     );
                   }
-                });
-              },
-              child: const Text("Submit"),
-            ),
-            const SizedBox(height: 25),
-            Text("Output: $name"),
-          ],
+                },
+                child: const Text("Submit"),
+              ),
+
+              const SizedBox(height: 25),
+              Text("Output: $name"),
+            ],
+          ),
         ),
       ),
     );
